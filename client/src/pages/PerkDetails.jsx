@@ -55,7 +55,8 @@ export default function PerkDetails() {
 
   useEffect(() => {
     if (!id) return
-    api.get('/perks/' + id)
+    api
+      .get('/perks/' + id)
       .then(res => {
         setPerk(res.data.perk)
         setLoading(false)
@@ -66,9 +67,26 @@ export default function PerkDetails() {
       })
   }, [id])
 
- // TODO 2: Implement delete functionality with a window confirm dialog 
+  // Delete handler with confirm dialog
   async function handleDelete() {
-   
+    console.log('Delete button clicked') // 🔍 debug: check DevTools console
+
+    if (!perk) return
+
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this perk?'
+    )
+    if (!confirmed) return
+
+    try {
+      await api.delete('/perks/' + id)
+      alert('Perk deleted successfully.')
+      nav('/perks')
+    } catch (err) {
+      console.error('Failed to delete perk:', err)
+      setError(err?.response?.data?.message || 'Failed to delete perk')
+      alert('Failed to delete perk. Please try again.')
+    }
   }
 
   if (loading) {
@@ -84,7 +102,9 @@ export default function PerkDetails() {
       <div className="max-w-3xl mx-auto">
         <div className="text-center py-12">
           <p className="text-red-600 mb-4">{error || 'Perk not found'}</p>
-          <Link to="/perks" className="btn">Back to Perks</Link>
+          <Link to="/perks" className="btn">
+            Back to Perks
+          </Link>
         </div>
       </div>
     )
@@ -93,21 +113,27 @@ export default function PerkDetails() {
   const theme = categoryThemes[perk.category] || categoryThemes.other
 
   return (
-    //TODO 3: Implement delete perk handler
     <div className="max-w-3xl mx-auto">
       {/* Back button */}
       <div className="mb-4">
-        <Link to="/perks" className="text-sm text-zinc-600 hover:text-zinc-900">
+        <Link
+          to="/perks"
+          className="text-sm text-zinc-600 hover:text-zinc-900"
+        >
           ← Back to all perks
         </Link>
       </div>
 
       {/* Main card with gradient background */}
-      <div className={`card bg-gradient-to-br ${theme.gradient} ${theme.border} border-2`}>
-        
+      <div
+        className={`card bg-gradient-to-br ${theme.gradient} ${theme.border} border-2`}
+      >
         {/* Category icon */}
         <div className="flex justify-center mb-4">
-          <span className={`material-symbols-outlined ${theme.iconColor}`} style={{ fontSize: '80px', fontWeight: '300' }}>
+          <span
+            className={`material-symbols-outlined ${theme.iconColor}`}
+            style={{ fontSize: '80px', fontWeight: '300' }}
+          >
             {theme.icon}
           </span>
         </div>
@@ -119,7 +145,9 @@ export default function PerkDetails() {
 
         {/* Category badge */}
         <div className="flex justify-center mb-6">
-          <span className={`${theme.badge} px-4 py-2 rounded-full text-sm font-semibold uppercase tracking-wide`}>
+          <span
+            className={`${theme.badge} px-4 py-2 rounded-full text-sm font-semibold uppercase tracking-wide`}
+          >
             {perk.category}
           </span>
         </div>
@@ -127,7 +155,9 @@ export default function PerkDetails() {
         {/* Discount badge - prominent if available */}
         {perk.discountPercent > 0 && (
           <div className="flex justify-center mb-8">
-            <div className={`${theme.accentText} bg-white border-2 ${theme.border} rounded-2xl px-8 py-4 shadow-lg`}>
+            <div
+              className={`${theme.accentText} bg-white border-2 ${theme.border} rounded-2xl px-8 py-4 shadow-lg`}
+            >
               <div className="text-5xl font-bold text-center">
                 {perk.discountPercent}%
               </div>
@@ -140,7 +170,6 @@ export default function PerkDetails() {
 
         {/* Details section */}
         <div className="space-y-4 mb-8">
-          
           {/* Merchant */}
           {perk.merchant && (
             <div className="bg-white rounded-xl p-4 shadow-sm border border-zinc-200">
@@ -184,18 +213,30 @@ export default function PerkDetails() {
 
         {/* Action buttons */}
         <div className="flex gap-3 justify-center flex-wrap">
-          <Link 
-            to={`/perks/${id}`} 
+          <Link
+            to={`/perks/${id}`}
             className={`btn bg-white ${theme.border} border-2 ${theme.accentText} hover:bg-opacity-90 font-semibold px-6 py-3 flex items-center gap-2`}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>edit</span>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: '20px' }}
+            >
+              edit
+            </span>
             Edit Perk
           </Link>
+
+          {/* 🔴 Make sure onClick is here */}
           <button
-            
+            onClick={handleDelete}
             className="btn bg-white border-2 border-red-200 text-red-600 hover:bg-red-50 font-semibold px-6 py-3 flex items-center gap-2"
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>delete</span>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: '20px' }}
+            >
+              delete
+            </span>
             Delete Perk
           </button>
         </div>
